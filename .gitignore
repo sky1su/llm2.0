@@ -1,0 +1,4 @@
+/poetry.lock
+/.venv/
+/.idea/
+/config.ini

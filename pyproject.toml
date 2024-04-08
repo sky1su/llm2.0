@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "llm2-0"
+version = "0.1.0"
+description = ""
+authors = ["Grigory Bubnov <sky1su@ya.ru>"]
+readme = "README.md"
+packages = [{include = "llm2"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.31.0"
+jupyter = "^1.0.0"
+loguru = "^0.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
