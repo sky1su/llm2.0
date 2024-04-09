@@ -2,3 +2,4 @@
 /.venv/
 /.idea/
 /config.ini
+/journal_*.log

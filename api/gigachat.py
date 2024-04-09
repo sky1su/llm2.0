@@ -4,10 +4,13 @@ import requests
 import json
 from urllib3.exceptions import InsecureRequestWarning
 from datetime import datetime
-
+from loguru import logger
+import sys
 # отключение предупреждения об отключенной валидации TLS сертификата
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
+logger.remove()
+logger.add('journal_{time}.json', level='DEBUG', serialize=True, rotation='10 MB')
 
 class GIGACHAT:
     """
@@ -21,16 +24,20 @@ class GIGACHAT:
     response = None
     access_token_request_id = None
 
+    @logger.catch
     def __init__(self, client_secret: str, client_id: str):
         """
         Конструктор класса
         :param client_secret: client_secret
         :param client_id: client_id
         """
+        logger.debug(f'Вызван конструктур класса {__build_class__()}')
+
         self.auth_data = self.__get_auth_data__(client_id, client_secret)
         self.access_token_request_id = str(uuid.uuid4())
         self.access_token = self.__get_access_token__()
 
+    @logger.catch
     def __get_auth_data__(self, client_id: str, client_secret: str) -> str:
         """
         Метод генерирует авторизационные данные, необходимые для получения сессионного токена
@@ -43,6 +50,7 @@ class GIGACHAT:
         auth_data = base64.b64encode(data)
         return auth_data.decode('utf-8')
 
+    @logger.catch
     def __get_access_token__(self) -> dict:
         """
         Метод получает сессионный токен для работы с api
@@ -61,10 +69,12 @@ class GIGACHAT:
             try:
                 response = requests.request('POST', url, headers=headers, data=payload, verify=False, timeout=1)
             except requests.RequestException as e:
-                print("Ошибка при получении токена:", e)
+                # print("Ошибка при получении токена:", e)
+                logger.exception('Ошибка при получении токена.')
             return json.loads(response.content)
         return self.access_token
 
+    @logger.catch
     def api_request(self,
                     content: str,
                     tempeature=0.87,
@@ -99,8 +109,12 @@ class GIGACHAT:
             'Accept': 'application/json',
             'Authorization': f'Bearer {self.access_token.get('access_token')}'
         }
-        response = requests.request("POST", url, headers=headers, data=payload, verify=False)
+        try:
+            response = requests.request("POST", url, headers=headers, data=payload, verify=False)
+        except requests.RequestException as e:
+            logger.exception(f'Ошибка выполнения запроса к api {url}')
         self.response = response
 
+    @logger.catch
     def get_response(self):
         return self.response.text
