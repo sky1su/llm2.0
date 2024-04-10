@@ -2,4 +2,6 @@
 /.venv/
 /.idea/
 /config.ini
+/*.json
+/*.log
 /journal_*.log
